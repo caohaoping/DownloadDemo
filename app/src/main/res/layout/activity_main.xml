@@ -5,38 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="5dp"
-    tools:context="com.example.downloaddemo.MainActivity">
+    tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:text="下载的文件名"/>
-
-    <ProgressBar
-        android:id="@+id/progressbar"
-        style="?android:attr/progressBarStyleHorizontal"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/name"
-        android:layout_margin="5dp"
-        />
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/progressbar"
-        android:text="下载"/>
-
-    <Button
-        android:id="@+id/stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/start"
-        android:layout_toRightOf="@+id/start"
-        android:text="暂停"/>
+    </android.support.v7.widget.RecyclerView>
 
 
 </RelativeLayout>

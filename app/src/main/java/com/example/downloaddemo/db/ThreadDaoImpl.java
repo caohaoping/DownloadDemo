@@ -17,32 +17,45 @@ import java.util.List;
 public class ThreadDaoImpl implements ThreadDao {
 
     private final DBHelper mDbHelper;
+    private static ThreadDaoImpl threadDaoInstance;
 
     public ThreadDaoImpl(Context context) {
-        mDbHelper = new DBHelper(context);
+        mDbHelper = DBHelper.getDBHelper(context);
+    }
+
+    public static ThreadDaoImpl getThreadDaoInstance(Context context) {
+        if (threadDaoInstance == null) {
+            synchronized (ThreadDaoImpl.class) {
+                if (threadDaoInstance == null) {
+                    threadDaoInstance = new ThreadDaoImpl(context);
+                }
+            }
+        }
+        return threadDaoInstance;
     }
 
     @Override
-    public void insert(ThreadInfo threadInfo) {
+    public synchronized void insert(ThreadInfo threadInfo) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         if (db.isOpen()) {
             db.execSQL("insert into thread_info(thread_id, url, start, end, finished) values(?,?,?,?,?)", new Object[]{threadInfo.getId(), threadInfo.getUrl(), threadInfo.getStart(), threadInfo.getEnd(), threadInfo.getFinished()});
-
         }
         db.close();
     }
 
     @Override
-    public void delete(String url, int thread_id) {
+    public synchronized boolean delete(String url) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         if (db.isOpen()) {
-            db.execSQL("delete from thread_info where url = ? and thread_id = ?", new Object[]{url, thread_id});
+            db.execSQL("delete from thread_info where url = ?", new Object[]{url});
+            db.close();
+            return true;
         }
-        db.close();
+        return false;
     }
 
     @Override
-    public void update(String url, int thread_id, int finished) {
+    public synchronized void update(String url, int thread_id, int finished) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         if (db.isOpen()) {
             db.execSQL("update thread_info set finished = ? where url = ? and thread_id = ?", new Object[]{finished, url, thread_id});
@@ -82,7 +95,6 @@ public class ThreadDaoImpl implements ThreadDao {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
         boolean toNext = false;
         if (db.isOpen()) {
-            System.out.println("url: " + url + ", thread_id: " + thread_id);
             Cursor cursor = db.rawQuery("select * from thread_info where url = ? and thread_id = ?", new String[]{url, thread_id + ""});
             toNext = cursor.moveToNext();
             cursor.close();

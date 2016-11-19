@@ -34,14 +34,12 @@ public class DownloadService extends Service {
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            int what = msg.what;
-            if (what == MSG_INIT) {
+            if (msg.what == MSG_INIT) {
                 //获取数据
                 FileInfo fileInfo = (FileInfo) msg.obj;
-                Log.i("handler", fileInfo.toString());
                 //开启线程下载
-                mDownloadManager = new DownloadManager(DownloadService.this);
-                mDownloadManager.download(fileInfo);
+                mDownloadManager = DownloadManager.getInstance(DownloadService.this);
+                mDownloadManager.multiThreadDownload(fileInfo, 3);
             }
         }
     };
@@ -64,10 +62,10 @@ public class DownloadService extends Service {
 
         } else if (ACTION_STOP.equals(intent.getAction())) {
             // 接收Activity传过来的数据
-            FileInfo fileInfo = intent.getParcelableExtra("mFileInfo");
+            int id = intent.getIntExtra("fileId", 0);
             // 暂停下载
-            Log.i("test", "stop: " + fileInfo.toString());
-            mDownloadManager.isPause = true;
+            mDownloadManager.pauseDownload(id);
+            Log.i("test", "stop: " + id);
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -96,7 +94,6 @@ public class DownloadService extends Service {
                 if (conn.getResponseCode() == 200) {
                     // 获取文件大小
                     length = conn.getContentLength();
-
                 }
                 if (length <= 0) {
                     return;
@@ -114,10 +111,10 @@ public class DownloadService extends Service {
                 e.printStackTrace();
             } finally {
                 try {
-                    if(raf != null){
+                    if (raf != null) {
                         raf.close();
                     }
-                    if(conn != null){
+                    if (conn != null) {
                         conn.disconnect();
                     }
                 } catch (Exception e) {
@@ -143,7 +140,7 @@ public class DownloadService extends Service {
             cachePath = context.getCacheDir().getPath();
         }
         File file = new File(cachePath + File.separator + uniqueName);
-        if (!file.exists()){
+        if (!file.exists()) {
             file.mkdir();
         }
         return file;

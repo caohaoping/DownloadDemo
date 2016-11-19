@@ -19,9 +19,8 @@ public interface ThreadDao {
     /**
      * 删除线程
      * @param url
-     * @param thread_id
      */
-    void delete(String url, int thread_id);
+    boolean delete(String url);
 
     /**
      * 更新线程完成进度
